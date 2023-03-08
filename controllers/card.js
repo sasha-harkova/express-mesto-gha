@@ -14,7 +14,7 @@ function createCard(req, res) {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
       return res.status(500).send({ message: err.message });
@@ -45,7 +45,7 @@ function likeCard(req, res) {
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
       return res.status(500).send({ message: err.message });
@@ -65,7 +65,7 @@ function dislikeCard(req, res) {
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
       return res.status(500).send({ message: err.message });

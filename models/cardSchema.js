@@ -10,6 +10,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (v) => /^https?:\/\/(www\.)?[a-zA-Z0-9-]*\.[a-zA-Z0-9]*\b([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)#?/.test(v),
+      message: 'Введите веб-адрес',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,10 +26,6 @@ const cardSchema = new mongoose.Schema({
       ref: 'owner',
     }],
     default: [],
-    validate: {
-      validator: (v) => /^https?:\/\/(www\.)?[a-zA-Z0-9-]*\.[a-zA-Z0-9]*\b([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)#?/.test(v),
-      message: 'Введите веб-адрес',
-    },
   },
   createdAt: {
     type: Date,

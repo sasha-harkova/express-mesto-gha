@@ -22,6 +22,10 @@ const cardSchema = new mongoose.Schema({
       ref: 'owner',
     }],
     default: [],
+    validate: {
+      validator: (v) => /^https?:\/\/(www\.)?[a-zA-Z0-9-]*\.[a-zA-Z0-9]*\b([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)#?/.test(v),
+      message: 'Введите веб-адрес',
+    },
   },
   createdAt: {
     type: Date,

@@ -2,11 +2,12 @@ const User = require('../models/userSchema');
 
 const error400Message = 'Переданы некорректные данные';
 const error404Message = 'Пользователь по указанному _id не найден.';
+const error500Message = 'На сервере произошла ошибка';
 
 function getUsers(req, res) {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: error500Message }));
 }
 
 function getUserById(req, res) {
@@ -21,7 +22,7 @@ function getUserById(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 
@@ -32,7 +33,7 @@ function createUser(req, res) {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
-      } return res.status(500).send({ message: err.message });
+      } return res.status(500).send({ message: error500Message });
     });
 }
 
@@ -57,7 +58,7 @@ function updateProfile(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 
@@ -82,7 +83,7 @@ function updateAvatar(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 

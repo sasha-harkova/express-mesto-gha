@@ -2,11 +2,12 @@ const Card = require('../models/cardSchema');
 
 const error400Message = 'Переданы некорректные данные';
 const error404Message = 'Карточка с указанным _id не найдена.';
+const error500Message = 'На сервере произошла ошибка';
 
 function getCards(req, res) {
   Card.find({})
     .then((cards) => res.status(200).send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: error500Message }));
 }
 
 function createCard(req, res) {
@@ -17,7 +18,7 @@ function createCard(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 
@@ -33,7 +34,7 @@ function deleteCard(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 
@@ -53,7 +54,7 @@ function likeCard(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 
@@ -73,7 +74,7 @@ function dislikeCard(req, res) {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: error400Message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: error500Message });
     });
 }
 

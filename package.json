@@ -13,7 +13,7 @@
     "url": "git+https://github.com/sasha-harkova/express-mesto-gha.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sasha Harkova",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sasha-harkova/express-mesto-gha/issues"

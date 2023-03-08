@@ -1,6 +1,7 @@
 const Card = require('../models/cardSchema');
-const error400Message = 'Переданы некорректные данные'
-const error404Message = 'Карточка с указанным _id не найдена.'
+
+const error400Message = 'Переданы некорректные данные';
+const error404Message = 'Карточка с указанным _id не найдена.';
 
 function getCards(req, res) {
   Card.find({})

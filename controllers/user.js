@@ -1,6 +1,7 @@
 const User = require('../models/userSchema');
-const error400Message = 'Переданы некорректные данные'
-const error404Message = 'Пользователь по указанному _id не найден.'
+
+const error400Message = 'Переданы некорректные данные';
+const error404Message = 'Пользователь по указанному _id не найден.';
 
 function getUsers(req, res) {
   User.find({})

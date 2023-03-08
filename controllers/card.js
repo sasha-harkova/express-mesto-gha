@@ -29,7 +29,12 @@ function deleteCard(req, res) {
       }
       return res.status(200).send({ data: card });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: error400Message });
+      }
+      return res.status(500).send({ message: err.message });
+    });
 }
 
 function likeCard(req, res) {

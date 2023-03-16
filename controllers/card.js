@@ -1,44 +1,37 @@
 const Card = require('../models/cardSchema');
+const AuthError = require('../errors/auth-err');
+const NotFoundError = require('../errors/not-found-err');
 
-const error400Message = 'Переданы некорректные данные';
+const error401Message = 'Попытка удаления чужой карточки';
 const error404Message = 'Карточка с указанным _id не найдена.';
-const error500Message = 'На сервере произошла ошибка';
 
-function getCards(req, res) {
+function getCards(req, res, next) {
   Card.find({})
-    .then((cards) => res.status(200).send({ data: cards }))
-    .catch(() => res.status(500).send({ message: error500Message }));
+    .then((cards) => res.send({ data: cards }))
+    .catch(next);
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      }
-      return res.status(500).send({ message: error500Message });
-    });
+    .then((card) => res.send({ data: card }))
+    .catch(next);
 }
 
-function deleteCard(req, res) {
-  Card.findByIdAndRemove(req.params.cardId)
+function deleteCard(req, res, next) {
+  Card.findById(req.params.cardId)
     .then((card) => {
-      if (card === null) {
-        return res.status(404).send({ message: error404Message });
+      if (card.owner == req.user._id) {
+        Card.deleteOne(card)
+          .then((ownerCard) => res.send({ data: ownerCard }));
+      } else {
+        throw new AuthError(error401Message);
       }
-      return res.status(200).send({ data: card });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      }
-      return res.status(500).send({ message: error500Message });
-    });
+    .catch(next);
 }
 
-function likeCard(req, res) {
+function likeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -46,19 +39,14 @@ function likeCard(req, res) {
   )
     .then((card) => {
       if (card === null) {
-        return res.status(404).send({ message: error404Message });
+        throw new NotFoundError(error404Message);
       }
-      return res.status(200).send({ data: card });
+      return res.send({ data: card });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      }
-      return res.status(500).send({ message: error500Message });
-    });
+    .catch(next);
 }
 
-function dislikeCard(req, res) {
+function dislikeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -66,16 +54,11 @@ function dislikeCard(req, res) {
   )
     .then((card) => {
       if (card === null) {
-        return res.status(404).send({ message: error404Message });
+        throw new NotFoundError(error404Message);
       }
-      return res.status(200).send({ data: card });
+      return res.send({ data: card });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      }
-      return res.status(500).send({ message: error500Message });
-    });
+    .catch(next);
 }
 
 module.exports = {

@@ -1,29 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const { errors } = require('celebrate');
+const cors = require('cors');
 
-const { PORT = 3000, mongoConnect = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
-const userRoutes = require('./routes/userRoutes');
-const cardRoutes = require('./routes/cardRoutes');
+const { PORT, DB_ADDRESS } = require('./config');
+
+const { router, routerForCreatingUserAndAuthorization } = require('./routes');
+const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
-app.use(bodyParser.json());
 
-mongoose.connect(mongoConnect, {
+mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6408825d8e92c091f58b67f4',
-  };
-  next();
-});
-app.use('/users', userRoutes);
-app.use('/cards', cardRoutes);
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-});
+app.use(helmet());
+app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(bodyParser.json());
+app.use(errors());
+app.use(routerForCreatingUserAndAuthorization);
+app.use(auth);
+app.use(router);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(1);

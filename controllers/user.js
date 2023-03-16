@@ -1,43 +1,50 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 const User = require('../models/userSchema');
+const NotFoundError = require('../errors/not-found-err');
+const { JWT_SECRET } = require('../config');
 
-const error400Message = 'Переданы некорректные данные';
 const error404Message = 'Пользователь по указанному _id не найден.';
-const error500Message = 'На сервере произошла ошибка';
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   User.find({})
-    .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: error500Message }));
+    .then((users) => res.send({ data: users }))
+    .catch(next);
 }
 
-function getUserById(req, res) {
+function getUserById(req, res, next) {
   User.findById(req.params.userId)
     .then((user) => {
       if (user === null) {
-        return res.status(404).send({ message: error404Message });
+        throw new NotFoundError(error404Message);
       }
-      return res.status(200).send({ data: user });
+      return res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
+    .catch(next);
+}
+
+function getCurrentUser(req, res, next) {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (user === null) {
+        throw new NotFoundError(error404Message);
       }
-      return res.status(500).send({ message: error500Message });
-    });
+      return res.send({ data: user });
+    })
+    .catch(next);
 }
 
-function createUser(req, res) {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(200).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      } return res.status(500).send({ message: error500Message });
-    });
+function createUser(req, res, next) {
+  const user = req.body;
+
+  bcrypt.hash(user.password, 10)
+    .then((hash) => User.create({ ...user, password: hash })
+      .then((newUser) => res.send({ data: newUser }))
+      .catch(next));
 }
 
-function updateProfile(req, res) {
+function updateProfile(req, res, next) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -50,19 +57,14 @@ function updateProfile(req, res) {
   )
     .then((user) => {
       if (user === null) {
-        return res.status(404).send({ message: error404Message });
+        throw new NotFoundError(error404Message);
       }
-      return res.status(200).send({ data: user });
+      return res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      }
-      return res.status(500).send({ message: error500Message });
-    });
+    .catch(next);
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -75,25 +77,30 @@ function updateAvatar(req, res) {
   )
     .then((user) => {
       if (user === null) {
-        return res.status(404).send({ message: error404Message });
+        throw new NotFoundError(error404Message);
       }
-      return res.status(200).send({ data: user });
+      return res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: error400Message });
-      }
-      return res.status(500).send({ message: error500Message });
-    });
+    .catch(next);
+}
+
+function login(req, res, next) {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+      res.send({ user, token });
+    })
+    .catch(next);
 }
 
 module.exports = {
-  getUsers, getUserById, createUser, updateProfile, updateAvatar,
+  getUsers,
+  getUserById,
+  createUser,
+  updateProfile,
+  updateAvatar,
+  login,
+  getCurrentUser,
 };
-
-// {
-//   "name": "Тестовый пользователь",
-//   "about": "Информация о себе",
-//   "avatar": "https://www.synapse-studio.ru/sites/default/files/styles/article_full/public/article/2020/frame_%284%29_0.png.webp?itok=2utYxGjp",
-//    "_id": "6408825d8e92c091f58b67f4",
-// }

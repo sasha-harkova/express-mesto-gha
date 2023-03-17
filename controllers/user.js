@@ -40,7 +40,13 @@ function createUser(req, res, next) {
 
   bcrypt.hash(user.password, 10)
     .then((hash) => User.create({ ...user, password: hash })
-      .then((newUser) => res.send({ data: newUser }))
+      .then((newUser) => res.send({
+        name: newUser.name,
+        about: newUser.about,
+        avatar: newUser.avatar,
+        email: newUser.email,
+        _id: user._id,
+      }))
       .catch(next));
 }
 

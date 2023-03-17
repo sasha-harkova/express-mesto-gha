@@ -1,6 +1,6 @@
 const Card = require('../models/cardSchema');
 const NotFoundError = require('../errors/not-found-err');
-const TryingIsFailed = require('../errors/trying-is-failed')
+const TryingIsFailed = require('../errors/trying-is-failed');
 
 const error403Message = 'Попытка удаления чужой карточки';
 const error404Message = 'Карточка с указанным _id не найдена.';
@@ -20,10 +20,12 @@ function createCard(req, res, next) {
 
 function deleteCard(req, res, next) {
   Card.findById(req.params.cardId)
+    .orFail(new NotFoundError(error404Message))
     .then((card) => {
-      if (card.owner === req.user._id) {
+      if (card.owner.toString() === req.user._id) {
         Card.deleteOne(card)
-          .then((ownerCard) => res.send({ data: ownerCard }));
+          .then((ownerCard) => res.send({ data: ownerCard }))
+          .catch(next);
       } else {
         throw new TryingIsFailed(error403Message);
       }

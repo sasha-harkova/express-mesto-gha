@@ -8,15 +8,11 @@ const urlPattern = /https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;
 
 router.get('/', getUsers);
 
-router.get('/me', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
-  }).unknown(true),
-}), getCurrentUser);
+router.get('/me', getCurrentUser);
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    userId: Joi.string().hex().length(24).required(),
   }).unknown(true),
 }), getUserById);
 

@@ -4,7 +4,7 @@ const { JWT_SECRET } = require('../config');
 const error401Message = 'Необходима авторизация';
 
 function handleAuthError(res) {
-  res.status(401).send(error401Message);
+  res.status(401).send({ message: error401Message });
 }
 
 function checkAuth(req, res, next) {

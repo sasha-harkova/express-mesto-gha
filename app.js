@@ -20,10 +20,10 @@ mongoose.connect(DB_ADDRESS, {
 app.use(helmet());
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(bodyParser.json());
-app.use(errors());
 app.use(routerForCreatingUserAndAuthorization);
 app.use(auth);
 app.use(router);
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {

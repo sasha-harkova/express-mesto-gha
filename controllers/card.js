@@ -1,8 +1,8 @@
 const Card = require('../models/cardSchema');
-const AuthError = require('../errors/auth-err');
 const NotFoundError = require('../errors/not-found-err');
+const TryingIsFailed = require('../errors/trying-is-failed')
 
-const error401Message = 'Попытка удаления чужой карточки';
+const error403Message = 'Попытка удаления чужой карточки';
 const error404Message = 'Карточка с указанным _id не найдена.';
 
 function getCards(req, res, next) {
@@ -21,11 +21,11 @@ function createCard(req, res, next) {
 function deleteCard(req, res, next) {
   Card.findById(req.params.cardId)
     .then((card) => {
-      if (card.owner == req.user._id) {
+      if (card.owner === req.user._id) {
         Card.deleteOne(card)
           .then((ownerCard) => res.send({ data: ownerCard }));
       } else {
-        throw new AuthError(error401Message);
+        throw new TryingIsFailed(error403Message);
       }
     })
     .catch(next);

@@ -8,7 +8,7 @@ const errorHandler = (err, req, res, next) => {
     ? `${error500Message}: ${err.message}`
     : err.message;
 
-  if (err.name === 'ValidationError' || err.name === 'CastError' || err.message === 'Validation failed') {
+  if ( err.name === 'CastError' ) {
     res.status(400).send({ message: `${error400Message}: ${err.message}` });
   // } else if (err.name === 'CastError') {
   //   res.status(404).send({ message: `${error404Message}: ${err.message}` });

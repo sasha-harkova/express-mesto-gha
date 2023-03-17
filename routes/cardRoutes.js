@@ -4,7 +4,7 @@ const {
   getCards, createCard, deleteCard, likeCard, dislikeCard,
 } = require('../controllers/card');
 
-const urlPattern = /^https?:\/\/(www\.)?[a-zA-Z0-9-]*\.[a-zA-Z0-9]*\b([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)#?/;
+const urlPattern = /https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;=]{2,}#?/;
 
 router.get('/', getCards);
 
@@ -17,19 +17,19 @@ router.post('/', celebrate({
 
 router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    id: Joi.string().hex().length(24),
   }).unknown(true),
 }), deleteCard);
 
 router.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    id: Joi.string().hex().length(24),
   }).unknown(true),
 }), likeCard);
 
 router.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    id: Joi.string().hex().length(24),
   }).unknown(true),
 }), dislikeCard);
 

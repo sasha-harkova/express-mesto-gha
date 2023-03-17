@@ -4,19 +4,19 @@ const {
   getUsers, getUserById, updateProfile, updateAvatar, getCurrentUser,
 } = require('../controllers/user');
 
-const urlPattern = /^https?:\/\/(www\.)?[a-zA-Z0-9-]*\.[a-zA-Z0-9]*\b([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)#?/;
+const urlPattern = /https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;=]{2,}#?/;
 
 router.get('/', getUsers);
 
 router.get('/me', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    id: Joi.string().hex().length(24),
   }).unknown(true),
 }), getCurrentUser);
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    id: Joi.string().hex().length(24),
   }).unknown(true),
 }), getUserById);
 

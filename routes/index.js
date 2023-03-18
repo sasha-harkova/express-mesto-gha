@@ -1,35 +1,21 @@
 const router = require('express').Router();
-const routerForCreatingUserAndAuthorization = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
 
 const userRoutes = require('./userRoutes');
 const cardRoutes = require('./cardRoutes');
-const { createUser, login } = require('../controllers/user');
+const authAndRegistrationRoutes = require('./authAndRegistrationRoutes');
+const auth = require('../middlewares/auth');
 
-const urlPattern = /https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;=]{2,}#?/;
+const NotFoundError = require('../errors/not-found-err');
 
+const error404Message = 'Страница по указанному маршруту не найдена';
+
+router.use('/', authAndRegistrationRoutes);
+router.use(auth);
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
 
-routerForCreatingUserAndAuthorization.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(urlPattern),
-    email: Joi.string().email().required(),
-    password: Joi.string().required().min(8),
-  }),
-}), createUser);
-
-routerForCreatingUserAndAuthorization.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
-
-router.use((req, res) => {
-  res.status(404).send({ message: 'Страница по указанному маршруту не найдена' });
+router.use(() => {
+  throw new NotFoundError(error404Message);
 });
 
-module.exports = { router, routerForCreatingUserAndAuthorization };
+module.exports = router;

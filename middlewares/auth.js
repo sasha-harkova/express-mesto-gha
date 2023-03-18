@@ -1,17 +1,15 @@
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config');
 
-const error401Message = 'Необходима авторизация';
+const AuthError = require('../errors/auth-err');
 
-function handleAuthError(res) {
-  res.status(401).send({ message: error401Message });
-}
+const error401Message = 'Необходима авторизация';
 
 function checkAuth(req, res, next) {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return handleAuthError(res);
+    throw new AuthError(error401Message);
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -20,7 +18,7 @@ function checkAuth(req, res, next) {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return handleAuthError(res);
+    throw new AuthError(error401Message);
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса

@@ -58,7 +58,6 @@ function updateProfile(req, res, next) {
     {
       new: true,
       runValidators: true,
-      upsert: true,
     },
   )
     .then((user) => {
@@ -78,7 +77,6 @@ function updateAvatar(req, res, next) {
     {
       new: true,
       runValidators: true,
-      upsert: true,
     },
   )
     .then((user) => {

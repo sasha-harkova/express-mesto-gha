@@ -9,6 +9,7 @@ const { PORT, DB_ADDRESS } = require('./config');
 
 const router = require('./routes');
 const errorHandler = require('./middlewares/error-handler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
@@ -19,7 +20,9 @@ mongoose.connect(DB_ADDRESS, {
 app.use(helmet());
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(bodyParser.json());
+app.use(requestLogger);
 app.use(router);
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
